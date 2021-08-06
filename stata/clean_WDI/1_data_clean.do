@@ -21,7 +21,7 @@ while `i' <= 66 {
 qui replace  indicatorcode = subinstr(indicatorcode, ".", "_",.)
 
 // gen var id for merging
-qui do $CODE\idwd.do
+qui do $CODE\2_idwd.do
 qui drop if id == .
 qui rename id cid
  
@@ -45,7 +45,7 @@ restore
    
 
   qui gen varid = .
-  qui do  $CODE\varid.do
+  qui do  $CODE\2_varid.do
   order cid varid
   sort  cid varid
  
@@ -82,7 +82,10 @@ clear
  replace _varname = substr(_varname , -4 ,.)
  rename _varname  year
  destring year ,replace force 
- qui do  $CODE\renameVar.do 
+ qui do  $CODE\2_renameVar.do 
+
+ gen countrycode = "."
+ replace countrycode = strupper(substr("`na'" , -7 ,3))
  qui save  `na' , replace
                                  }
  
@@ -100,6 +103,17 @@ clear
                                }
  local i=1 
                                }
+
+gen countryname = "."
+qui do $CODE\2_idwd.do
+rename id cid
+
+qui do $CODE\2_countryname.do
+
+order cid  countrycode countryname year 
+xtset cid year
+save wdi_use.dta ,replace
+
 
 
 
